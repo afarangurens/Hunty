@@ -54,6 +54,6 @@ def get_vacante(VacancyId: str):
 def delete_vacante(VacancyId: str):
     for indx, vacante in enumerate(vacantes):
         if vacante["VacancyId"] == VacancyId:
-            vacante.pop(indx)
+            vacantes.pop(indx)
             return {"message": "La vacante ha sido borrada exitosamente."}
     raise HTTPException(status_code=404, detail="Vacante no encontrada")
