@@ -5,6 +5,7 @@ def vacanteEntity(item) -> dict:
         "PositionName": item["PositionName"],
         "CompanyName": item["CompanyName"],
         "Salary": item["Salary"],
+        "Currency": item["Currency"],
         "VacancyLink": item["VacancyLink"],
         "RequiredSkills": item["RequiredSkills"],
         "active": item["active"]
