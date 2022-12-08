@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Response, status
 from config.db import conn
 from schemas.vacante import vacantesEntity, vacanteEntity
-from schemas.usuario import usuarioEntity
 from models.vacante import Vacante
 from bson import ObjectId
 from starlette.status import HTTP_204_NO_CONTENT
@@ -44,8 +43,3 @@ def delete_vacante(id: str):
 
     return Response(status_code=HTTP_204_NO_CONTENT)
 
-@vacante.get('/vacantes/{id}', tags=["Vacantes"])
-def get_usuario(id: str):
-    print(conn.local.usuario.find_one({"_id": id}))
-    
-    return "received"

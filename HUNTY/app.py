@@ -2,11 +2,10 @@ from fastapi import FastAPI
 from routes.usuario import usuario
 from routes.vacante import vacante
 from config.db import conn
-from schemas.vacante import vacantesEntity, vacanteEntity
+from schemas.vacante import vacantesEntity
 from schemas.usuario import usuarioEntity
 from models.vacante import Vacante
 from bson import ObjectId
-from starlette.status import HTTP_204_NO_CONTENT
 from docs import tags_metadata
 
 
