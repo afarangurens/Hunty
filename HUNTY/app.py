@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from routes.usuario import usuario
 from routes.vacante import vacante
 from config.db import conn
@@ -7,7 +7,7 @@ from schemas.usuario import usuarioEntity
 from models.vacante import Vacante
 from bson import ObjectId
 from docs import tags_metadata
-
+from starlette.status import HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 
 app =  FastAPI(
     title="REST API para recomendar vacantes con FastAPI y MongoDB",
@@ -23,30 +23,39 @@ app.include_router(usuario)
 def read_root():
     return {"Welcome": "Welcome to my API"}
 
-@app.get("/recomendaciones/{UserId}", response_model=list[Vacante], tags=["Recomendaciones"])
+@app.get("/recomendaciones/{id}", tags=["Recomendaciones"])
 def get_recommended_vacantes(id: str):
-    usuario = usuarioEntity(conn.local.usuario.find_one({"_id": ObjectId(id)}))
-    vacantes = vacantesEntity(conn.local.vacante.find())
-    user_skills = usuario["Skills"]
-    reccommended_vacantes = []
+    usuario = conn.local.usuario.find_one({"_id": ObjectId(id)})
+    if usuario is not None:
+        usuario = usuarioEntity(usuario)
+        print("helo=?")
+        vacantes = vacantesEntity(conn.local.vacante.find())
+        if vacantes is not None:
+            print("arewwe")
+            user_skills = usuario["Skills"]
+            recommended_vacantes = []
 
-    for vacante in vacantes:
-        vacante_skills = vacante["RequiredSkills"]
-        number_of_skills = len(vacante_skills)
-        approved_skills = 0
+            for vacante in vacantes:
+                vacante_skills = vacante["RequiredSkills"]
 
-        if user_skills == [] or vacante_skills == []: continue
-        
-        for skill in user_skills:
-            for skill2 in vacante_skills:
-                if skill.keys() == skill2.keys():     
-                    if list(skill.items())[0][1] >= list(skill2.items())[0][1]:
-                        approved_skills += 1
-        
-        if approved_skills >= number_of_skills * 0.5:
-            reccommended_vacantes.append(vacante)
-    
-    if len(reccommended_vacantes) == 0:
-        return "No hay vacantes disponibles para tus habilidades actuales."
+                number_of_skills = len(vacante_skills)
+
+                approved_skills = 0
+
+                if user_skills == [] or vacante_skills == []: continue
+                
+                for skill in user_skills:
+                    for skill2 in vacante_skills:
+                        if skill.keys() == skill2.keys():     
+                            if list(skill.items())[0][1] >= list(skill2.items())[0][1]:
+                                approved_skills += 1
+                
+                if approved_skills >= number_of_skills * 0.5:
+                    recommended_vacantes.append(vacante)
+            
+            if recommended_vacantes is not []:
+                return recommended_vacantes
+        else:
+            return HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No existe esa vacante")
     else:
-        return reccommended_vacantes
+        return HTTPException(status_code=HTTP_404_NOT_FOUND, detail="No existe el usuario.")

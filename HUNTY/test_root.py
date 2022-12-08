@@ -72,3 +72,30 @@ def test_create_usuario():
     data = response.json()
     assert data["Email"] == "un.test.no.hace.mal@gmail.com"
     assert data["UserId"] == usuario_id
+
+def test_get_usuario_not_found():
+    id = "6390fab4652a0d8c6e1b55ff" # Id not in DB
+    response = client.get(f"usuarios/{id}")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Usuario no encontrada."}
+
+def test_get_vacante_not_found():
+    id = "6390fab4652a0d8c6e1b55ff" # Id not in DB
+    response = client.get(f"vacantes/{id}")
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Vacante no encontrada."}
+
+def test_get_recommended_vacantes():
+    id = "639151f6204a8b93495f5c13"
+    response = client.get(f"recomendaciones/{id}")
+    assert response.status_code == 200
+
+def test_get_recommended_vacantes_bad_usuario():
+    id = "639141f6204a8b93495f5d13"
+    response = client.get(f"recomendaciones/{id}")
+    assert response.status_code == 200
+    assert response.json() == {
+            "status_code": 404,
+            "detail": "No existe el usuario.",
+            "headers": None
+        }
